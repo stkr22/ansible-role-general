@@ -24,3 +24,9 @@
     - general
     - nfs
     - storage
+
+- name: Security | Configure overlay filesystems
+  ansible.builtin.import_tasks: overlay_config.yml
+  when: "'overlay' in server_security_tasks"
+  tags:
+    - overlay

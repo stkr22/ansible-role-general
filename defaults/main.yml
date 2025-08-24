@@ -2,7 +2,7 @@
 # defaults file for general role
 
 # List of tasks to execute from this role
-# Possible values: deactivate_stublistener, kubernetes_prepare, podman_remote
+# Possible values: deactivate_stublistener, kubernetes_prepare, podman_remote, overlay
 # Example:
 # general_role_tasks:
 #   - deactivate_stublistener
