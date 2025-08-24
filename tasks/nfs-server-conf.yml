@@ -1,5 +1,6 @@
 ---
 - name: Install packages nfs depends on.
+  become: true
   ansible.builtin.apt:
     name:
       - nfs-kernel-server
@@ -15,6 +16,7 @@
     line: "ConditionPathIsMountPoint={{ nfs_conf.mount_path }}"
 
 - name: Add NFS export configuration
+  become: true
   ansible.builtin.lineinfile:
     path: /etc/exports
     line: "{{ item.path }} {{ item.options }}"

@@ -13,6 +13,7 @@
   register: general_role_services_state
 
 - name: Set ufw rule for kubectl allow.
+  become: true
   community.general.ufw:
     rule: allow
     port: '6443'
@@ -22,12 +23,14 @@
     - general_role_services_state.ansible_facts.services["ufw.service"].status == "enabled"
 
 - name: Remove packages that interfere with k3s.
+  become: true
   ansible.builtin.apt:
     name:
       - modemmanager # might cause issues with zigbee2mqtt
     state: absent
 
 - name: Check if /etc/multipath.conf exists
+  become: true
   ansible.builtin.stat:
     path: /etc/multipath.conf
   register: general_role_multipath_conf
