@@ -10,10 +10,10 @@
   become: true
   ansible.builtin.lineinfile:
     dest: /etc/systemd/system/nfs-server.service.requires/fsidd.service
-    regexp: "^ConditionPathIsMountPoint={{ nfs_conf.mount_path }}"
+    regexp: "^ConditionPathIsMountPoint={{ general_nfs_conf.mount_path }}"
     insertafter: '\[Unit\]'
     firstmatch: true
-    line: "ConditionPathIsMountPoint={{ nfs_conf.mount_path }}"
+    line: "ConditionPathIsMountPoint={{ general_nfs_conf.mount_path }}"
 
 - name: Add NFS export configuration
   become: true
@@ -24,7 +24,7 @@
     owner: root
     group: root
     mode: '0644'
-  loop: "{{ nfs_conf.export_paths }}"
+  loop: "{{ general_nfs_conf.export_paths }}"
   notify:
     - Restart NFS
     - Export NFS configuration
