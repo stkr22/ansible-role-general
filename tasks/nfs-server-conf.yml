@@ -1,0 +1,28 @@
+---
+- name: Install packages nfs depends on.
+  ansible.builtin.apt:
+    name:
+      - nfs-kernel-server
+    state: present
+
+- name: Update nfs systemd config.
+  become: true
+  ansible.builtin.lineinfile:
+    dest: /etc/systemd/system/nfs-server.service.requires/fsidd.service
+    regexp: "^ConditionPathIsMountPoint={{ nfs_conf.mount_path }}"
+    insertafter: '\[Unit\]'
+    firstmatch: true
+    line: "ConditionPathIsMountPoint={{ nfs_conf.mount_path }}"
+
+- name: Add NFS export configuration
+  ansible.builtin.lineinfile:
+    path: /etc/exports
+    line: "{{ item.path }} {{ item.options }}"
+    create: true
+    owner: root
+    group: root
+    mode: '0644'
+  loop: "{{ nfs_conf.export_paths }}"
+  notify:
+    - Restart NFS
+    - Export NFS configuration

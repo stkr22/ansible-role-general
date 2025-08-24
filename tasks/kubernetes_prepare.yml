@@ -1,0 +1,44 @@
+---
+- name: Install packages k3s depends on.
+  ansible.builtin.apt:
+    name:
+      - open-iscsi
+      - apparmor
+      - wireguard
+      - nfs-common
+    state: present
+
+- name: Collect facts about system services
+  ansible.builtin.service_facts:
+  register: general_role_services_state
+
+- name: Set ufw rule for kubectl allow.
+  community.general.ufw:
+    rule: allow
+    port: '6443'
+    proto: tcp
+  when:
+    - "'ufw.service' in general_role_services_state.ansible_facts.services"
+    - general_role_services_state.ansible_facts.services["ufw.service"].status == "enabled"
+
+- name: Remove packages that interfere with k3s.
+  ansible.builtin.apt:
+    name:
+      - modemmanager # might cause issues with zigbee2mqtt
+    state: absent
+
+- name: Check if /etc/multipath.conf exists
+  ansible.builtin.stat:
+    path: /etc/multipath.conf
+  register: general_role_multipath_conf
+
+- name: Update multipath config for longhorn
+  become: true
+  ansible.builtin.blockinfile:
+    path: /etc/multipath.conf
+    block: |
+      blacklist {
+        devnode "^sd[a-z0-9]+"
+      }
+  notify: Restart multipathd
+  when: general_role_multipath_conf.stat.exists

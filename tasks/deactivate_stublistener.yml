@@ -1,0 +1,65 @@
+---
+# Deactivate systemd-resolved stub listener to free up port 53
+
+- name: DNS Stub | Ensure resolved.conf.d directory exists
+  become: true
+  ansible.builtin.file:
+    path: /etc/systemd/resolved.conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: DNS Stub | Configure systemd-resolved without stub listener
+  become: true
+  ansible.builtin.template:
+    src: fixed.conf.j2
+    dest: /etc/systemd/resolved.conf.d/fixed.conf
+    owner: root
+    group: root
+    mode: "0644"
+    backup: true
+  notify: Restart systemd-resolved
+
+- name: DNS Stub | Check current resolv.conf configuration
+  ansible.builtin.stat:
+    path: /etc/resolv.conf
+  register: general_resolvconf_file
+
+- name: DNS Stub | Backup existing resolv.conf if not a correct symlink
+  become: true
+  ansible.builtin.copy:
+    remote_src: true
+    src: /etc/resolv.conf
+    dest: /etc/resolv.conf.backup
+    mode: "0644"
+    owner: root
+    group: root
+  when:
+    - not general_resolvconf_file.stat.islnk or
+      general_resolvconf_file.stat.lnk_source != '/run/systemd/resolve/resolv.conf'
+  changed_when: false
+
+- name: DNS Stub | Remove incorrect resolv.conf
+  become: true
+  ansible.builtin.file:
+    dest: /etc/resolv.conf
+    state: absent
+  when:
+    - not general_resolvconf_file.stat.islnk or
+      general_resolvconf_file.stat.lnk_source != '/run/systemd/resolve/resolv.conf'
+
+- name: DNS Stub | Create correct symbolic link for DNS resolution
+  become: true
+  ansible.builtin.file:
+    src: /run/systemd/resolve/resolv.conf
+    dest: /etc/resolv.conf
+    state: link
+    force: true
+  when:
+    - not general_resolvconf_file.stat.islnk or
+      general_resolvconf_file.stat.lnk_source != '/run/systemd/resolve/resolv.conf'
+  notify: Restart systemd-resolved
+
+- name: DNS Stub | Apply systemd-resolved changes immediately
+  ansible.builtin.meta: flush_handlers

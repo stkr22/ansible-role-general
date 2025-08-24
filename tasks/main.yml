@@ -1,0 +1,26 @@
+---
+# tasks file for general role
+
+- name: General | Include deactivate stublistener tasks
+  ansible.builtin.import_tasks: deactivate_stublistener.yml
+  when: "'deactivate_stublistener' in general_role_tasks"
+  tags:
+    - general
+    - dns
+    - stublistener
+
+- name: General | Include kubernetes preparation tasks
+  ansible.builtin.import_tasks: kubernetes_prepare.yml
+  when: "'kubernetes_prepare' in general_role_tasks"
+  tags:
+    - general
+    - kubernetes
+    - k3s
+
+- name: General | Include NFS server configuration tasks
+  ansible.builtin.import_tasks: nfs-server-conf.yml
+  when: general_nfs_conf | length > 0
+  tags:
+    - general
+    - nfs
+    - storage

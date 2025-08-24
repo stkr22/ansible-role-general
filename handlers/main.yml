@@ -1,0 +1,46 @@
+---
+# handlers file for general role
+
+- name: Restart systemd-resolved
+  become: true
+  ansible.builtin.systemd:
+    name: systemd-resolved
+    state: restarted
+    daemon_reload: true
+
+- name: Restart server
+  become: true
+  ansible.builtin.reboot:
+    reboot_timeout: 600
+    msg: "Ansible triggered reboot"
+
+- name: Restart k3s server
+  become: true
+  ansible.builtin.systemd:
+    name: k3s.service
+    state: restarted
+    daemon_reload: true
+
+- name: Restart k3s agent
+  become: true
+  ansible.builtin.systemd:
+    name: k3s-agent.service
+    state: restarted
+    daemon_reload: true
+
+- name: Restart multipathd
+  become: true
+  ansible.builtin.systemd:
+    name: multipathd
+    state: restarted
+
+- name: Restart NFS
+  become: true
+  ansible.builtin.systemd:
+    name: nfs-kernel-server
+    state: restarted
+
+- name: Export NFS configuration
+  become: true
+  ansible.builtin.command: exportfs -ra
+  changed_when: false

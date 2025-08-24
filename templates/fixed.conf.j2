@@ -1,0 +1,7 @@
+# {{ ansible_managed }}
+# This file disables the systemd-resolved DNS stub listener
+# to free up port 53 for other DNS services
+
+[Resolve]
+DNSStubListener=no
+DNSStubListenerExtra={{ general_dns_stub_listener_port }}

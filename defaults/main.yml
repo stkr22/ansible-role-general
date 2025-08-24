@@ -1,0 +1,40 @@
+---
+# defaults file for general role
+
+# List of tasks to execute from this role
+# Possible values: deactivate_stublistener, kubernetes_prepare, podman_remote
+# Example:
+# general_role_tasks:
+#   - deactivate_stublistener
+#   - kubernetes_prepare
+general_role_tasks: []
+
+# Kubernetes/K3s configuration
+# Path where K3s data will be mounted
+# Example: /mnt/data
+general_k3s_config_data_mount_path: null
+
+# NFS server configuration
+# Define NFS exports and their settings
+# Example:
+# general_nfs_conf:
+#   exports:
+#     - path: /srv/nfs/share1
+#       clients: "192.168.1.0/24"
+#       options: "rw,sync,no_subtree_check"
+general_nfs_conf: {}
+
+# DNS Stub Listener Configuration
+# Port to use after disabling systemd-resolved stub listener
+general_dns_stub_listener_port: 5353
+
+# Package management
+# Packages to ensure are installed for general functionality
+general_required_packages:
+  - nfs-kernel-server
+  - nfs-common
+
+# Service management
+# Services that should be enabled/disabled
+general_services_enabled: []
+general_services_disabled: []
